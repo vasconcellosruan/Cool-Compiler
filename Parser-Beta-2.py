@@ -34,12 +34,37 @@ def makeNode(tree, t):
     no = Node(t.type) 
     tree.addChild(no)   #Criamos um no e adiocinamos ele como filho
     isLeaf(no, t)       #Tratamos se forem folhas
+    addTable(t, tree, GL_aux, GL_aux2)
     return no           #Esse retorno pode ser útil para tratar os erros futuramente
     
+def addTable(t, tree, classe, feat):#Em construção
+    aux = False
+    if(t.type == 'ID'):
+        for i in range(len(table)):
+            if(table[i][0] != t.value):
+                continue
+            elif(table[i][5] == feat and table[i][4]  == classe):
+            #     continue
+            # elif(table[i][4]  == classe):
+                aux=True
+                break
+
+        if(aux == False):
+            l = [str(t.value),str(t.type),str(t.lineno),str(tree.data),str(classe),str(feat)]
+            table.append(l)
+            
+
+def tbprint():
+    for i in range(len(table)):
+        print(' ')
+        print (table[i], end= ' ')
+
 def inClass(t, tree):       #Passando o último token e a raiz da árvore                  
         no = makeNode(tree, t)#TESTANDO
         t = newToken()      #Pegamos um novo token
         if((t.type) == 'TYPE'):
+            global GL_aux
+            GL_aux = str(t.value)
             no = makeNode(tree, t)#TESTANDO
             t = newToken()
             if(t.type == 'INHERITS'):
@@ -72,6 +97,8 @@ def inClass(t, tree):       #Passando o último token e a raiz da árvore
 
 def inFeature(t, tree):
     while True:#Enquanto nao for o fim - Lembrar do if(t.type == 'ID'): no final do while
+        global GL_aux2
+        GL_aux2 = t.value
         no = Node('FEATURE')
         tree.addChild(no)#PERCEBA A MALDADE DO TREE, NO E NO2 A PARTIR DESSE PONTO KKKKK
         no2 = makeNode(no, t)#TESTANDO
@@ -645,6 +672,8 @@ def tprint():
 #Aqui começa o equivalente a Main, vulgo: MEIN INERITS AIOOOOU!!!!!    
 aux = 0#Isso tinha um propósito, ainda descobrirei qual... kkkk
 tree = Node('PROGRAM')
+table = [['Valor','Tipo','Numero da linha','Tipo Pai','Classe','Feature']]
+GL_aux = GL_aux2 = ' '
 #t1 = newToken()
 while True: #loop infinito
     t = newToken()
