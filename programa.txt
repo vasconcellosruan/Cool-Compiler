@@ -384,9 +384,8 @@ class Main inherits IO {
 		      else
                       avar <- (new A).method1(avar.value()) -- divide/8
                   fi fi fi fi fi fi fi fi fi fi;
-            }#
+            }
          pool;
        }
    };
-¬
 };
