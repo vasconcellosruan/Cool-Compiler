@@ -1,0 +1,61 @@
+'''q
+Aa
+Int int
+in
+inherits
+Inherits
+let
+Let lEt
+self
+SELF_TYPE
+Self
+sELF_TYPE
+SELF_type
+[(
+[AAA]
+aA
+aa
+3 + 4 = 10
+  + -20 *2
+  2<3
+  5<=8
+  7>=6
+  2=>6
+  "teste"
+  ""teste
+  "test!%#//--"
+  "teste""
+  oi"oi"oi"oi.¬¬
+  (*0teste
+  tes0te
+  teste0
+  teste 0
+  -- no cool dos outros é refresco
+  Z
+  A a
+  AAAA
+  int a
+  a.a
+  case
+  CAse
+  a_a*)
+  _a
+  true
+  True
+  tRue
+  false
+  fasle
+  False
+  fALSE
+  tFALSE
+  FALSE
+  TREU
+  TRUE
+  class
+  Class
+  CLasS
+  if
+  IF
+  iF
+  If*)
+'''
