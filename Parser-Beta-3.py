@@ -16,6 +16,16 @@ def error(t, STRING): #Mensagem de erro padrão
     else:
         print('Erro: o tipo %s era esperado na linha %d.' % (STRING,t.lineno))
 
+#TESTANDO
+def erro(t, STRING):
+    if(STRING == 'ERROR'):
+        print('Erro: %s na linha %d. Provalmente há algum simbolo repetido inexperado pela linguagem ou fora de uma CLASSE.' % (STRING, t.lineno))
+    else:
+        print('Erro: o tipo %s era esperado na linha %d.' % (STRING,t.lineno))
+    t = newToken()
+    return t
+
+
 class Node: #Nossa arvore - Arvore genérica, cada nó tem N filhos
     def __init__(self, data, token = None):#O parametro 'token=None' permite "sobrecarga"
         self.data = data
@@ -58,121 +68,136 @@ def tbprint():
         print (table[i], end= ' ')
 
 def inClass(t, tree):       #Passando o último token e a raiz da árvore                  
+    no = makeNode(tree, t)#TESTANDO
+    t = newToken()      #Pegamos um novo token
+    if((t.type) == 'TYPE'):
+        global GL_aux
+        GL_aux = str(t.value)
         no = makeNode(tree, t)#TESTANDO
-        t = newToken()      #Pegamos um novo token
-        if((t.type) == 'TYPE'):
-            global GL_aux
-            GL_aux = str(t.value)
-            no = makeNode(tree, t)#TESTANDO
+        t = newToken()
+        if(t.type == 'INHERITS'):
+            no = makeNode(tree, t) #TESTANDO
             t = newToken()
-            if(t.type == 'INHERITS'):
-                no = makeNode(tree, t) #TESTANDO
-                t = newToken()
-                if(t.type == 'TYPE' or t.type == 'IO'):
-                    no = makeNode(tree, t)#TESTANDO
-                    t = newToken()
-                else:
-                    error(t, 'TYPE') #Erro passando t para pegarmos o número da linha e o que faltava        
-            if(t.type == 'CHAVE_E'):
+            if(t.type == 'TYPE' or t.type == 'IO'):
                 no = makeNode(tree, t)#TESTANDO
                 t = newToken()
-                if(t.type == 'ID'): #Caso especial - TODO FEATURE começa com ID
-                    t = inFeature(t, tree)#chamada para FEATURE - Note que na volta da função o token nao muda, por isso forçamos com o retorno a mudar
-                if(t.type == 'CHAVE_D'):
-                    no = makeNode(tree, t)#TESTANDO
-                    t = newToken()
-                else:
-                    error(t, '} ou ID')
             else:
-                error(t, '{')
-        else:
-           error(t, 'TYPE')
-        if(t.type == 'SEMICOLON'):
+                error(t, 'TYPE') #Erro passando t para pegarmos o número da linha e o que faltava        
+        if(t.type == 'CHAVE_E'):
             no = makeNode(tree, t)#TESTANDO
+            t = newToken()
+            if(t.type == 'ID'): #Caso especial - TODO FEATURE começa com ID
+                t = inFeature(t, tree)#chamada para FEATURE - Note que na volta da função o token nao muda, por isso forçamos com o retorno a mudar
+            if(t.type == 'CHAVE_D'):
+                no = makeNode(tree, t)#TESTANDO
+                t = newToken()
+            else:
+                error(t, '} ou ID')
         else:
-            error(t, '; no final da CLASSE')
+            error(t, '{')
+    else:
+       error(t, 'TYPE')
+    if(t.type == 'SEMICOLON'):
+        no = makeNode(tree, t)#TESTANDO
+    else:
+        error(t, '; no final da CLASSE')
 
 
 def inFeature(t, tree):
+    aux = False
     while True:#Enquanto nao for o fim - Lembrar do if(t.type == 'ID'): no final do while
         global GL_aux2
         GL_aux2 = t.value
-        no = Node('FEATURE')
-        tree.addChild(no)#PERCEBA A MALDADE DO TREE, NO E NO2 A PARTIR DESSE PONTO KKKKK
-        no2 = makeNode(no, t)#TESTANDO
-        t = newToken()
-        if(t.type == 'COLON'): #COLON é :
+        if(t.type == 'ID'):
+            no = Node('FEATURE')
+            tree.addChild(no)#PERCEBA A MALDADE DO TREE, NO E NO2 A PARTIR DESSE PONTO KKKKK
             no2 = makeNode(no, t)#TESTANDO
             t = newToken()
-            if(t.type == 'TYPE'):
+            if(t.type == 'COLON'): #COLON é :
                 no2 = makeNode(no, t)#TESTANDO
                 t = newToken()
-                if(t.type == 'ATRIB'):
+                if(t.type == 'TYPE'):
                     no2 = makeNode(no, t)#TESTANDO
                     t = newToken()
-                    if(isExp(t)):#Se for verdadeiro, chama inExp
-                        t = inExp(t, no)#Provavelmente vai ter que ter um retorno t
-                    else:
-                        error(t, 'EXPRESSÃO')
-                if(t.type == 'SEMICOLON'):
-                    no2 = makeNode(no, t)#TESTANDO
-                    t = newToken()
-                    if(t.type != 'ID'):
-                        break
-                else:
-                    error(t, ';')
-                    #break               <-----
-            else:
-                error(t, 'TYPE')    
-        else: #Jefferson, quero ver entender esse pedaço! HA HA HA
-            if(t.type != 'PAREN_E'):
-                error(t, ': ou (')
-                break
-            if(t.type == 'PAREN_E'):                
-                no2 = makeNode(no, t)#TESTANDO
-                t = newToken()
-                if(t.type == 'ID'): #Aqui vai começar o FORMAL, por isso verifico se é um 'ID'
-                    t = inFormal(t, no)#Provavelmente vai ter que ter um retorno t
-                else:
-                    if(t.type != 'PAREN_D'):
-                        error(t, 'FORMAL do tipo: " ID : TYPE " ou )')
-                if(t.type == 'PAREN_D'):
-                    no2 = makeNode(no, t)#TESTANDO
-                    t = newToken()
-                    if(t.type == 'COLON'):
+                    if(t.type == 'ATRIB'):
                         no2 = makeNode(no, t)#TESTANDO
                         t = newToken()
-                        if(t.type == 'TYPE' or t.type == 'SELF_TYPE'):
+                        aux = True
+                        #erro(t,'EXP',no)
+                    if(isExp(t)):#TESTANDO TODO ESSE BLOCO
+                        if(aux == False):
+                            error(t, 'ATRIBUIÇÃO') #TESTANDO2
+                            aux = False
+                        t = inExp(t, no)
+                    else:
+                        if(t.type != 'SEMICOLON'):
+                            error(t, 'EXPRESSÃO')#FIM DO BLOCO DE TESTE
+                    #erro(t, ';', no)
+                    if(t.type == 'SEMICOLON'):
+                        no2 = makeNode(no, t)
+                        t = newToken()
+                        if(t.type != 'ID'):
+                            break
+                    else:
+                        error(t, ';')
+                        if(t.type != 'ID'):
+                            break
+                else:
+                    error(t, 'TYPE')    
+            else: #Jefferson, quero ver entender esse pedaço! HA HA HA
+                if(t.type != 'PAREN_E'):
+                    error(t, ': ou (')
+                    #break
+                if(t.type == 'PAREN_E'):                
+                    no2 = makeNode(no, t)#TESTANDO
+                    t = newToken()
+                    if(t.type == 'ID'): #Aqui vai começar o FORMAL, por isso verifico se é um 'ID'
+                        t = inFormal(t, no)#Provavelmente vai ter que ter um retorno t
+                    else:
+                        if(t.type != 'PAREN_D'):
+                            error(t, 'FORMAL do tipo: " ID : TYPE " ou )')
+                    if(t.type == 'PAREN_D'):
+                        no2 = makeNode(no, t)#TESTANDO
+                        t = newToken()
+                        if(t.type == 'COLON'):
                             no2 = makeNode(no, t)#TESTANDO
                             t = newToken()
-                            if(t.type == 'CHAVE_E'):
+                            if(t.type == 'TYPE' or t.type == 'SELF_TYPE'):
                                 no2 = makeNode(no, t)#TESTANDO
                                 t = newToken()
-                                if(isExp(t)):#Se for verdadeiro, chama inExp
-                                    t = inExp(t, no)#Provavelmente vai ter que ter um retorno t
-                                    if(t.type == 'CHAVE_D'):
-                                        no2 = makeNode(no, t)#TESTANDO
-                                        t = newToken()
-                                        if(t.type == 'SEMICOLON'):
+                                if(t.type == 'CHAVE_E'):
+                                    no2 = makeNode(no, t)#TESTANDO
+                                    t = newToken()
+                                    if(isExp(t)):#Se for verdadeiro, chama inExp
+                                        t = inExp(t, no)#Provavelmente vai ter que ter um retorno t
+                                        if(t.type == 'CHAVE_D'):
                                             no2 = makeNode(no, t)#TESTANDO
                                             t = newToken()
-                                            if(t.type != 'ID'):
-                                                break
+                                            if(t.type == 'SEMICOLON'):
+                                                no2 = makeNode(no, t)#TESTANDO
+                                                t = newToken()
+                                                if(t.type != 'ID'):
+                                                    break
+                                            else:
+                                                error(t, ';')
                                         else:
-                                            error(t, ';')
-                                    else:
-                                        error(t, '}')
-                                else: 
-                                    error(t, 'EXPRESSÃO') 
+                                            error(t, '}')
+                                    else: 
+                                        error(t, 'EXPRESSÃO') 
+                                else:
+                                    error(t, '{')
+                                    #break
                             else:
-                                error(t, '{')
-                                break
+                                error(t, 'TYPE')
                         else:
-                            error(t, 'TYPE')
+                            error(t, ':')
                     else:
-                        error(t, ':')
+                        error(t, ')')
                 else:
-                    error(t, ')')
+                    if(t.type == 'ID'):
+                        error(t, 'ID não')
+        else:
+            t = newToken()#DE ALGUMA FORMA ISSO RESOLVEU ALGUNS PROBLEMAS DO ERRO KKKK
     return t
                 
 
@@ -678,10 +703,10 @@ while True: #loop infinito
     if(not end(t)): #enquanto nao chegar ao final dos tokens
         if(t.type == 'CLASS'):
             inClass(t,tree)
-        else:
-            aux = aux + 1
-            if(aux < 10):
-                error(t, 'ERROR')
+        # else:
+        #     aux = aux + 1
+        #     if(aux < 10):
+        #         error(t, 'ERROR')
     else: #Se chegou ao fim dos tokens então break pra sair do loop infinito
         break
 
